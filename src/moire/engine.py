@@ -1,7 +1,7 @@
 import numpy as np
-from patterns import generate_line_pattern, generate_hex_pattern
-from rendering import run_animation
-from utils import parse_layer_def
+from .patterns import generate_line_pattern, generate_hex_pattern
+from .rendering import run_animation
+from .utils import parse_layer_def
 
 def run_artistic_mode(args):
     """
@@ -25,7 +25,7 @@ def run_artistic_mode(args):
         else:
             print(f"Warning: Unknown layer type '{layer_type}'. Skipping.")
             continue
-        
+
         # Combine layers using multiplication
         composed_pattern *= pattern
 
@@ -38,13 +38,13 @@ def run_scientific_mode(args):
     """
     print("[+] Running in SCIENTIFIC mode (Twisted Bilayer Hexagonal).")
     shape = (args.resolution, args.resolution)
-    
+
     print(f"[+] Generating base layer with lattice constant: {args.lattice_constant}...")
     layer1 = generate_hex_pattern(shape, args.lattice_constant, 0)
-    
+
     print(f"[+] Generating second layer twisted by {args.twist_angle} degrees...")
     layer2 = generate_hex_pattern(shape, args.lattice_constant, args.twist_angle)
-    
+
     # Combine layers using multiplication to simulate superposition
     composed_pattern = layer1 * layer2
 

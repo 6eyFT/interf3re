@@ -1,6 +1,6 @@
 import argparse
-from engine import run_artistic_mode, run_scientific_mode
-from utils import SPLASH_SCREEN
+from .engine import run_artistic_mode, run_scientific_mode
+from .utils import SPLASH_SCREEN
 
 def main():
     """
