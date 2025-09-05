@@ -48,8 +48,7 @@ python -m moire.gui
 ## CLI Mode
 The application can also be run from the command line via `cli.py`.
 
-**Example: Classic Rotated Line Pattern
-**
+**Example: Classic Rotated Line Pattern**
 ```python
 python -m moire.cli \
 --layer "type=lines;pitch=10;angle=0" \
