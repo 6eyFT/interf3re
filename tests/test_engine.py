@@ -19,38 +19,20 @@ class TestEngine(unittest.TestCase):
         pattern3 = np.array([5, 5, 5])
         np.testing.assert_allclose(engine.normalize_pattern(pattern3), [5, 5, 5])
 
-    @patch('src.moire.engine.save_static_3d')
     @patch('src.moire.engine.save_static_2d')
-    def test_generate_pattern_calls_2d_render(self, mock_save_2d, mock_save_3d):
-        """Verify the engine calls the 2D render function when dimension is '2d'."""
+    def test_generate_pattern_calls_2d_render(self, mock_save_2d):
+        """Verify the engine calls the 2D render function."""
         args = MagicMock()
         args.resolution = 100
-        args.dimension = '2d'
+        # The 'dimension' attribute is no longer used, but we can leave it for mock completeness
+        args.dimension = '2d' 
         args.layer = ["type=lines;pitch=10;angle=0"]
 
         engine.generate_pattern(args)
 
+        # The only assertion needed is that the 2D save function is called.
         mock_save_2d.assert_called_once()
-        mock_save_3d.assert_not_called()
         
         # Check that the second argument passed to the mock is a numpy array
         call_args, _ = mock_save_2d.call_args
-        self.assertIsInstance(call_args[1], np.ndarray)
-
-    @patch('src.moire.engine.save_static_3d')
-    @patch('src.moire.engine.save_static_2d')
-    def test_generate_pattern_calls_3d_render(self, mock_save_2d, mock_save_3d):
-        """Verify the engine calls the 3D render function when dimension is '3d'."""
-        args = MagicMock()
-        args.resolution = 100
-        args.dimension = '3d'
-        args.layer = ["type=lines;pitch=10;angle=0"]
-
-        engine.generate_pattern(args)
-
-        mock_save_2d.assert_not_called()
-        mock_save_3d.assert_called_once()
-        
-        # Check that the second argument passed to the mock is a numpy array
-        call_args, _ = mock_save_3d.call_args
         self.assertIsInstance(call_args[1], np.ndarray)
