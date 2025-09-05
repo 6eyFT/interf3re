@@ -16,12 +16,13 @@ helper_text = {
     "layer_angle": "Controls the rotation of this specific layer in degrees.",
     "output_filename": "The name of the output file. Should end in .png.",
     "final_resolution": "The resolution (width and height) of the generated image in pixels. Higher values take longer to render.",
-    "generate_button": "Generate the final static image with the current settings.",
-    "update_preview": "Manually update the live preview panel with the current settings."
+    "save_button": "Save the final static image with the current settings.",
+    "update_preview": "Manually update the image preview panel with the current settings.",
+    "image_preview": "Displays a low-resolution preview of the generated Moiré pattern."
 }
 
 # --- CONFIG & STATE ---
-app_state = { "layers": [], "tooltips": [], "status_text": "Idle.", "preview_resolution": 512 }
+app_state = { "layers": [], "tooltips": [], "preview_resolution": 512 }
 
 # --- THEME & SETUP ---
 def setup_theme_and_font():
@@ -61,7 +62,6 @@ def update_preview():
 
     if not app_state["layers"]:
         dpg.set_value("preview_texture", np.zeros((res, res, 4), dtype=np.float32))
-        dpg.set_value("status_bar_text", "Add a layer to begin.")
         return
 
     for layer_id in app_state["layers"]:
@@ -80,7 +80,6 @@ def update_preview():
     rgba_pattern[..., 3] = 1.0
     
     dpg.set_value("preview_texture", rgba_pattern)
-    dpg.set_value("status_bar_text", f"Preview updated.")
 
 def add_layer():
     layer_id = dpg.generate_uuid()
@@ -98,14 +97,11 @@ def remove_layer():
         layer_id = app_state["layers"].pop()
         dpg.delete_item(f"header_{layer_id}")
 
-def generate_final_image():
-    dpg.set_value("status_bar_text", "Generating final image...")
-    
+def save_final_image():
     class Args: pass
     args = Args()
     args.output = dpg.get_value("output_filename")
     args.resolution = dpg.get_value("final_resolution")
-    args.dimension = '2d' # Hardcoded to 2D
     
     args.layer = []
     for layer_id in app_state["layers"]:
@@ -115,7 +111,6 @@ def generate_final_image():
         args.layer.append(f"type={layer_type};angle={angle};pitch={pitch};const={pitch}")
 
     generate_pattern(args)
-    dpg.set_value("status_bar_text", f"Success! Image saved as '{args.output}'")
 
 def toggle_helpers(sender, app_data, user_data):
     is_enabled = dpg.get_value("enable_helpers_checkbox")
@@ -139,10 +134,10 @@ with dpg.window(tag="primary_window"):
             add_helper(dpg.last_item(), "enable_helpers")
             dpg.add_separator()
             
-            with dpg.group(horizontal=True):
+            with dpg.group(horizontal=True) as layer_button_group:
                 dpg.add_button(label="Add Layer", callback=add_layer, width=180)
                 dpg.add_button(label="Remove Layer", callback=remove_layer, width=180)
-            add_helper(dpg.last_item(), "add_remove_layer")
+            add_helper(layer_button_group, "add_remove_layer")
             dpg.add_separator()
             
             with dpg.child_window(tag="layer_controls", height=350): pass
@@ -154,26 +149,24 @@ with dpg.window(tag="primary_window"):
             with dpg.collapsing_header(label="Output Settings", default_open=True):
                 dpg.add_button(label="Update Preview", width=-1, callback=update_preview)
                 add_helper(dpg.last_item(), "update_preview")
-                dpg.add_input_text(label="Output Filename", default_value="moire_output.png", tag="output_filename")
+                dpg.add_input_text(label="Output Filename", default_value="interf3re_output.png", tag="output_filename")
                 add_helper(dpg.last_item(), "output_filename")
                 dpg.add_drag_int(label="Final Resolution", default_value=1024, tag="final_resolution", speed=16)
                 add_helper(dpg.last_item(), "final_resolution")
 
             dpg.add_spacer(height=10)
-            dpg.add_button(label="GENERATE", width=-1, height=40, callback=generate_final_image)
-            add_helper(dpg.last_item(), "generate_button")
+            dpg.add_button(label="SAVE IMAGE", width=-1, height=40, callback=save_final_image)
+            add_helper(dpg.last_item(), "save_button")
 
         with dpg.child_window():
-            dpg.add_text("LIVE PREVIEW", color=(0, 255, 150, 255))
+            with dpg.group() as preview_group:
+                dpg.add_text("IMAGE PREVIEW", color=(0, 255, 150, 255))
+            add_helper(preview_group, "image_preview")
             dpg.add_separator()
             dpg.add_image("preview_texture")
 
-    with dpg.child_window(height=40, menubar=True):
-        with dpg.menu_bar():
-            dpg.add_text(app_state["status_text"], tag="status_bar_text")
-
 # --- MAIN RENDER LOOP ---
-dpg.create_viewport(title='MOIRÉ STATIC GENERATOR', width=1280, height=720)
+dpg.create_viewport(title='Interf3re', width=1024, height=675)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.set_primary_window("primary_window", True)
