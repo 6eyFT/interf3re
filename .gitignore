@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project Images
+moire_output.png
+moire_output_2d.png
+moire_output_3d.png
+

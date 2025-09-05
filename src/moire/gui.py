@@ -5,7 +5,7 @@ import os
 # Import our existing backend logic
 from .patterns import generate_line_pattern, generate_hex_pattern
 from .rendering import save_static_2d, save_static_3d
-from .engine import normalize_pattern
+from .engine import normalize_pattern, generate_pattern
 
 # --- HELPERS TEXT ---
 helper_text = {
@@ -64,6 +64,11 @@ def update_preview():
     res = app_state["preview_resolution"]
     shape = (res, res)
     composed_pattern = np.ones(shape, dtype=np.float32)
+
+    if not app_state["layers"]: # If no layers exist, show a blank preview
+        dpg.set_value("preview_texture", np.zeros((res, res, 4), dtype=np.float32))
+        dpg.set_value("status_bar_text", "Add a layer to begin.")
+        return
 
     for layer_id in app_state["layers"]:
         layer_type = dpg.get_value(f"type_{layer_id}")
@@ -124,7 +129,6 @@ def generate_final_image():
     dpg.set_value("status_bar_text", f"Success! Image saved as '{args.output}'")
 
 def toggle_helpers(sender, app_data, user_data):
-    """Robustly toggles helper visibility by reading the checkbox value directly."""
     is_enabled = dpg.get_value("enable_helpers_checkbox")
     for tooltip_tag in app_state["tooltips"]:
         if dpg.does_item_exist(tooltip_tag):
@@ -147,17 +151,19 @@ with dpg.window(tag="primary_window"):
             dpg.add_separator()
             
             with dpg.group(horizontal=True):
-                dpg.add_button(label="[+] Add Layer", callback=add_layer, width=180)
-                dpg.add_button(label="[-] Remove Layer", callback=remove_layer, width=180)
+                dpg.add_button(label="Add Layer", callback=add_layer, width=180)
+                dpg.add_button(label="Remove Layer", callback=remove_layer, width=180)
             add_helper(dpg.last_item(), "add_remove_layer")
             dpg.add_separator()
             
-            with dpg.child_window(tag="layer_controls"): pass
+            with dpg.child_window(tag="layer_controls", height=200): # Give the layer section a defined height
+                pass
             
-            dpg.add_spacer(height=10)
+            dpg.add_separator()
             dpg.add_text("FINAL RENDER SETTINGS", color=(0, 255, 150, 255))
             dpg.add_separator()
             
+            # --- RESTORED RENDER SETTINGS ---
             with dpg.collapsing_header(label="Output Settings", default_open=True):
                 dpg.add_button(label="Update Preview", width=-1, callback=update_preview)
                 add_helper(dpg.last_item(), "update_preview")
@@ -200,7 +206,7 @@ dpg.show_viewport()
 dpg.set_primary_window("primary_window", True)
 
 add_layer()
-toggle_helpers(None, None, None) # Set initial tooltip visibility
+toggle_helpers(None, None, None)
 update_preview()
 
 while dpg.is_dearpygui_running():

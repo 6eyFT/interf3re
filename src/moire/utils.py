@@ -17,15 +17,34 @@ def parse_layer_def(layer_str):
     """
     Parses a layer definition string (e.g., "type=lines;pitch=10") into a dictionary.
     """
+    if not layer_str or not layer_str.strip():
+        return {}
+        
     params = {}
     try:
-        for part in layer_str.split(';'):
-            key, value = part.strip().split('=', 1)
+        # Split by semicolon and filter out any empty parts from trailing semicolons
+        parts = [part.strip() for part in layer_str.split(';') if part.strip()]
+        if not parts and layer_str: # Handle cases like a single malformed part with no semicolon
+             raise ValueError("Invalid format")
+
+        for part in parts:
+            # Each part must contain exactly one '='
+            if part.count('=') != 1:
+                raise ValueError("Each segment must be a key=value pair.")
+                
+            key, value = part.split('=', 1)
+            key = key.strip()
+            value = value.strip()
+            
+            # Key and value must not be empty
+            if not key or not value:
+                raise ValueError("Key or value cannot be empty.")
+
             try:
-                params[key.strip()] = float(value.strip())
+                params[key] = float(value)
             except ValueError:
-                params[key.strip()] = value.strip()
-    except ValueError:
+                params[key] = value
+    except (ValueError, IndexError):
         print(f"Error: Malformed layer definition string: '{layer_str}'")
         print("Expected format: 'key1=value1;key2=value2'")
         return None
