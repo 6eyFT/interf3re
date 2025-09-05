@@ -1,6 +1,8 @@
 import dearpygui.dearpygui as dpg
 import numpy as np
 import os
+import tkinter as tk
+from tkinter import filedialog
 
 # Import our existing backend logic
 from .patterns import generate_line_pattern, generate_hex_pattern
@@ -14,9 +16,7 @@ helper_text = {
     "layer_type": "Select the fundamental pattern for this layer.",
     "pitch_const": "For Lines: Controls the distance between lines (Pitch).\nFor Hexagonal: Controls the distance between points (Lattice Constant).",
     "layer_angle": "Controls the rotation of this specific layer in degrees.",
-    "output_filename": "The name of the output file. Should end in .png.",
-    "final_resolution": "The resolution (width and height) of the generated image in pixels. Higher values take longer to render.",
-    "save_button": "Save the final static image with the current settings.",
+    "save_button": "Open a file dialog to save the final 2D image.",
     "update_preview": "Manually update the image preview panel with the current settings.",
     "image_preview": "Displays a low-resolution preview of the generated Moiré pattern."
 }
@@ -85,7 +85,7 @@ def add_layer():
     layer_id = dpg.generate_uuid()
     app_state["layers"].append(layer_id)
     with dpg.collapsing_header(label=f"Layer {len(app_state['layers'])}", default_open=True, parent="layer_controls", tag=f"header_{layer_id}"):
-        dpg.add_combo(["Lines", "Hexagonal"], label="Type", width=-1, default_value="Lines", tag=f"type_{layer_id}")
+        dpg.add_combo(["Lines", "Hexagonal"], label="Type", default_value="Lines", tag=f"type_{layer_id}")
         add_helper(dpg.last_item(), "layer_type")
         dpg.add_drag_float(label="Pitch / Const", tag=f"pitch_{layer_id}", default_value=10.0, speed=0.1)
         add_helper(dpg.last_item(), "pitch_const")
@@ -98,19 +98,30 @@ def remove_layer():
         dpg.delete_item(f"header_{layer_id}")
 
 def save_final_image():
-    class Args: pass
-    args = Args()
-    args.output = dpg.get_value("output_filename")
-    args.resolution = dpg.get_value("final_resolution")
+    root = tk.Tk()
+    root.withdraw()
     
-    args.layer = []
-    for layer_id in app_state["layers"]:
-        layer_type = dpg.get_value(f"type_{layer_id}").lower()
-        angle = dpg.get_value(f"angle_{layer_id}")
-        pitch = dpg.get_value(f"pitch_{layer_id}")
-        args.layer.append(f"type={layer_type};angle={angle};pitch={pitch};const={pitch}")
+    file_path = filedialog.asksaveasfilename(
+        defaultextension=".png",
+        filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
+        initialfile="interf3re_output.png",
+        title="Save Moiré Pattern As..."
+    )
+    
+    if file_path:
+        class Args: pass
+        args = Args()
+        args.output = file_path
+        args.resolution = app_state["preview_resolution"]
+        
+        args.layer = []
+        for layer_id in app_state["layers"]:
+            layer_type = dpg.get_value(f"type_{layer_id}").lower()
+            angle = dpg.get_value(f"angle_{layer_id}")
+            pitch = dpg.get_value(f"pitch_{layer_id}")
+            args.layer.append(f"type={layer_type};angle={angle};pitch={pitch};const={pitch}")
 
-    generate_pattern(args)
+        generate_pattern(args)
 
 def toggle_helpers(sender, app_data, user_data):
     is_enabled = dpg.get_value("enable_helpers_checkbox")
@@ -146,13 +157,8 @@ with dpg.window(tag="primary_window"):
             dpg.add_text("RENDER SETTINGS", color=(0, 255, 150, 255))
             dpg.add_separator()
             
-            with dpg.collapsing_header(label="Output Settings", default_open=True):
-                dpg.add_button(label="Update Preview", width=-1, callback=update_preview)
-                add_helper(dpg.last_item(), "update_preview")
-                dpg.add_input_text(label="Output Filename", default_value="interf3re_output.png", tag="output_filename")
-                add_helper(dpg.last_item(), "output_filename")
-                dpg.add_drag_int(label="Final Resolution", default_value=1024, tag="final_resolution", speed=16)
-                add_helper(dpg.last_item(), "final_resolution")
+            dpg.add_button(label="Update Preview", width=-1, height=40, callback=update_preview)
+            add_helper(dpg.last_item(), "update_preview")
 
             dpg.add_spacer(height=10)
             dpg.add_button(label="SAVE IMAGE", width=-1, height=40, callback=save_final_image)
@@ -166,7 +172,7 @@ with dpg.window(tag="primary_window"):
             dpg.add_image("preview_texture")
 
 # --- MAIN RENDER LOOP ---
-dpg.create_viewport(title='Interf3re', width=1024, height=675)
+dpg.create_viewport(title='Interf3re', width=975, height=610)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.set_primary_window("primary_window", True)
