@@ -7,7 +7,7 @@ def main():
     Main function to parse arguments and delegate to the engine.
     """
     parser = argparse.ArgumentParser(
-        description="A CLI tool to generate 3D moiré pattern animations, adapted from Moiré research.",
+        description="A CLI tool to generate 3D moiré pattern images, adapted from Moiré research.",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -29,15 +29,16 @@ def main():
 
     # --- Common arguments for all modes ---
     for p in [parser_art, parser_sci]:
-        p.add_argument('-o', '--output', type=str, default='moiré_pattern.gif', help='Output filename.')
-        p.add_argument('--resolution', type=int, default=512, help='Resolution of the base 2D pattern (e.g., 512 for 512x512).')
-        p.add_argument('--speed', type=float, default=0.5, help='Camera rotation speed.')
-        p.add_argument('--frames', type=int, default=720, help='Total frames in the animation.')
-        p.add_argument('--num-points', type=int, default=40000, help='Total number of points in the 3D scatter cloud.')
-        p.add_argument('--depth', type=int, default=100, help='Depth of the 3D extrusion.')
-        p.add_argument('--z-layers', type=int, default=10, help='Number of stacked layers in the Z-dimension.')
-        p.add_argument('--marker-size', type=int, default=5, help='Size of the individual points.')
-        p.add_argument('--alpha', type=float, default=0.7, help='Transparency of points (0.0 to 1.0).')
+        p.add_argument('-o', '--output', type=str, default='moiré_pattern.png', help='Output filename (e.g., pattern.png).')
+        p.add_argument('--resolution', type=int, default=1024, help='Resolution of the base pattern (e.g., 1024 for 1024x1024).')
+        p.add_argument('--dimension', type=str, default='3d', choices=['2d', '3d'], help='Output a 2D or 3D static image.')
+        
+        # 3D specific arguments
+        p.add_argument('--num-points', type=int, default=50000, help='(3D only) Total number of points in the scatter cloud.')
+        p.add_argument('--depth', type=int, default=100, help='(3D only) Depth of the 3D extrusion.')
+        p.add_argument('--z-layers', type=int, default=10, help='(3D only) Number of stacked layers in the Z-dimension.')
+        p.add_argument('--marker-size', type=int, default=5, help='(3D only) Size of the individual points.')
+        p.add_argument('--alpha', type=float, default=0.7, help='(3D only) Transparency of points (0.0 to 1.0).')
 
     args = parser.parse_args()
 

@@ -1,13 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 import sys
 
-def run_animation(args, composed_pattern_2d):
+def save_static_2d(args, composed_pattern_2d):
     """
-    Generates and saves a 3D animation by extruding a 2D pattern.
+    Saves the generated 2D Moiré pattern as a static image.
     """
-    print("\n[+] Initializing 3D environment...")
+    print("\n[+] Saving static 2D image...")
+    try:
+        plt.imsave(args.output, composed_pattern_2d, cmap='gray')
+        print(f"\nSuccess! 2D image saved as '{args.output}'")
+    except Exception as e:
+        print(f"\n\nError saving 2D image: {e}")
+
+def save_static_3d(args, composed_pattern_2d):
+    """
+    Generates and saves a static 3D view of the extruded pattern.
+    """
+    print("\n[+] Initializing 3D environment for static render...")
     
     # 1. Create a 3D grid of points for scattering
     num_xy_points = args.num_points // args.z_layers
@@ -29,7 +39,7 @@ def run_animation(args, composed_pattern_2d):
     colors = composed_pattern_2d[y_indices, x_indices]
 
     # 3. Set up the 3D plot
-    fig = plt.figure(figsize=(8, 8), dpi=100)
+    fig = plt.figure(figsize=(10, 10), dpi=150)
     ax = fig.add_subplot(111, projection='3d')
     
     ax.scatter(
@@ -50,21 +60,13 @@ def run_animation(args, composed_pattern_2d):
     ax.set_xlabel('X'); ax.set_ylabel('Y'); ax.set_zlabel('Z')
     ax.xaxis.label.set_color('white'); ax.yaxis.label.set_color('white'); ax.zaxis.label.set_color('white')
     ax.tick_params(axis='x', colors='white'); ax.tick_params(axis='y', colors='white'); ax.tick_params(axis='z', colors='white')
+    ax.view_init(elev=30., azim=45) # Set a fixed, pleasing camera angle
 
-    # 4. Animation function for rotating the camera
-    def update(frame):
-        ax.view_init(elev=30., azim=frame * args.speed)
-        progress = (frame + 1) / args.frames * 100
-        sys.stdout.write(f"\r[+] Rendering animation... {progress:.1f}% complete")
-        sys.stdout.flush()
-        return fig,
-
-    print("[+] Starting animation rendering... This may take a while.")
-    ani = FuncAnimation(fig, update, frames=range(args.frames), blit=False, interval=20)
-
+    # 4. Save the static 3D figure
     try:
-        ani.save(args.output, writer='pillow', fps=30)
-        print(f"\n\nSuccess! Animation saved as '{args.output}'")
+        print("[+] Saving 3D render...")
+        fig.savefig(args.output, dpi=150, bbox_inches='tight', pad_inches=0.1, facecolor='black')
+        plt.close(fig) # Close the figure to free memory
+        print(f"\nSuccess! 3D image saved as '{args.output}'")
     except Exception as e:
-        print(f"\n\nError saving animation: {e}")
-        print("Please ensure you have 'pillow' installed (`pip install pillow`)")
+        print(f"\n\nError saving 3D image: {e}")
