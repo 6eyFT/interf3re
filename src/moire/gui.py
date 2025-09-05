@@ -172,7 +172,7 @@ with dpg.window(tag="primary_window"):
             dpg.add_image("preview_texture")
 
 # --- MAIN RENDER LOOP ---
-dpg.create_viewport(title='Interf3re', width=975, height=610)
+dpg.create_viewport(title='Interf3re: A Moiré Pattern Generator', width=975, height=610)
 dpg.setup_dearpygui()
 dpg.show_viewport()
 dpg.set_primary_window("primary_window", True)
