@@ -29,29 +29,29 @@ Interf3re uses Python’s standard virtual environment system.
 
 Clone the repository:
 
-<```bash>
+```bash
 git clone <your-repository-url>
 cd interf3re
-<```>
+```
 
 Create and activate a virtual environment:
 
-<```bash>
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
-<```>
+```
 
 Install the required dependencies:
 
-<```bash>
+```bash
 pip install -r requirements.txt
-<```>
+```
 
 For development, install in editable mode (makes the `moire` package importable when running scripts):
 
-<```bash>
+```bash
 pip install -e .
-<```>
+```
 
 ---
 
@@ -61,9 +61,9 @@ pip install -e .
 
 Run the interactive graphical interface:
 
-<```bash>
+```bash
 python -m moire.gui
-<```>
+```
 
 ### CLI Mode
 
@@ -71,13 +71,13 @@ Run directly from the command line as a module.
 
 **Example – Classic Rotated Line Pattern:**
 
-<```bash>
+```bash
 python -m moire.cli \
   --layer "type=lines;pitch=10;angle=0" \
   --layer "type=lines;pitch=10;angle=3" \
   --output "cli_lines.png" \
   --resolution 1024
-<```>
+```
 
 ---
 
