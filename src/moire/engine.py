@@ -1,6 +1,6 @@
 import numpy as np
 from .patterns import generate_line_pattern, generate_hex_pattern
-from .rendering import save_static_2d, save_static_3d
+from .rendering import save_static_2d
 from .utils import parse_layer_def
 
 def normalize_pattern(pattern):
@@ -14,7 +14,6 @@ def normalize_pattern(pattern):
 def generate_pattern(args):
     """
     Generates a pattern from a list of user-defined layers and renders it.
-    This is the new, unified core function.
     """
     print("[+] Running Moiré Generator.")
     shape = (args.resolution, args.resolution)
@@ -40,7 +39,4 @@ def generate_pattern(args):
 
     final_pattern = normalize_pattern(composed_pattern)
 
-    if args.dimension == '2d':
-        save_static_2d(args, final_pattern)
-    else:
-        save_static_3d(args, final_pattern)
+    save_static_2d(args, final_pattern)

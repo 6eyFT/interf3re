@@ -4,7 +4,7 @@ import os
 
 # Import our existing backend logic
 from .patterns import generate_line_pattern, generate_hex_pattern
-from .rendering import save_static_2d, save_static_3d
+from .rendering import save_static_2d
 from .engine import normalize_pattern, generate_pattern
 
 # --- HELPERS TEXT ---
@@ -14,15 +14,9 @@ helper_text = {
     "layer_type": "Select the fundamental pattern for this layer.",
     "pitch_const": "For Lines: Controls the distance between lines (Pitch).\nFor Hexagonal: Controls the distance between points (Lattice Constant).",
     "layer_angle": "Controls the rotation of this specific layer in degrees.",
-    "output_dim": "Choose whether to generate a flat 2D image or a 3D point cloud image.",
     "output_filename": "The name of the output file. Should end in .png.",
     "final_resolution": "The resolution (width and height) of the generated image in pixels. Higher values take longer to render.",
-    "3d_points": "(3D Only) The total number of points to use in the 3D cloud. More points create a denser, more detailed cloud.",
-    "3d_depth": "(3D Only) The depth of the point cloud along the Z-axis.",
-    "3d_zlayers": "(3D Only) How many times the 2D pattern is stacked along the Z-axis.",
-    "3d_markersize": "(3D Only) The size of each individual point in the 3D scatter plot.",
-    "3d_alpha": "(3D Only) The transparency of the points. 0.0 is fully transparent, 1.0 is fully opaque.",
-    "generate_button": "Generate the final static image with the current settings. This may take a moment.",
+    "generate_button": "Generate the final static image with the current settings.",
     "update_preview": "Manually update the live preview panel with the current settings."
 }
 
@@ -65,7 +59,7 @@ def update_preview():
     shape = (res, res)
     composed_pattern = np.ones(shape, dtype=np.float32)
 
-    if not app_state["layers"]: # If no layers exist, show a blank preview
+    if not app_state["layers"]:
         dpg.set_value("preview_texture", np.zeros((res, res, 4), dtype=np.float32))
         dpg.set_value("status_bar_text", "Add a layer to begin.")
         return
@@ -86,7 +80,7 @@ def update_preview():
     rgba_pattern[..., 3] = 1.0
     
     dpg.set_value("preview_texture", rgba_pattern)
-    dpg.set_value("status_bar_text", f"Preview updated [{res}x{res}].")
+    dpg.set_value("status_bar_text", f"Preview updated.")
 
 def add_layer():
     layer_id = dpg.generate_uuid()
@@ -111,12 +105,7 @@ def generate_final_image():
     args = Args()
     args.output = dpg.get_value("output_filename")
     args.resolution = dpg.get_value("final_resolution")
-    args.dimension = dpg.get_value("output_dim").lower()
-    args.num_points = dpg.get_value("3d_points")
-    args.depth = dpg.get_value("3d_depth")
-    args.z_layers = dpg.get_value("3d_zlayers")
-    args.marker_size = dpg.get_value("3d_markersize")
-    args.alpha = dpg.get_value("3d_alpha")
+    args.dimension = '2d' # Hardcoded to 2D
     
     args.layer = []
     for layer_id in app_state["layers"]:
@@ -156,35 +145,19 @@ with dpg.window(tag="primary_window"):
             add_helper(dpg.last_item(), "add_remove_layer")
             dpg.add_separator()
             
-            with dpg.child_window(tag="layer_controls", height=200): # Give the layer section a defined height
-                pass
+            with dpg.child_window(tag="layer_controls", height=350): pass
             
             dpg.add_separator()
-            dpg.add_text("FINAL RENDER SETTINGS", color=(0, 255, 150, 255))
+            dpg.add_text("RENDER SETTINGS", color=(0, 255, 150, 255))
             dpg.add_separator()
             
-            # --- RESTORED RENDER SETTINGS ---
             with dpg.collapsing_header(label="Output Settings", default_open=True):
                 dpg.add_button(label="Update Preview", width=-1, callback=update_preview)
                 add_helper(dpg.last_item(), "update_preview")
-                dpg.add_radio_button(["2D", "3D"], horizontal=True, default_value="3D", tag="output_dim")
-                add_helper(dpg.last_item(), "output_dim")
                 dpg.add_input_text(label="Output Filename", default_value="moire_output.png", tag="output_filename")
                 add_helper(dpg.last_item(), "output_filename")
                 dpg.add_drag_int(label="Final Resolution", default_value=1024, tag="final_resolution", speed=16)
                 add_helper(dpg.last_item(), "final_resolution")
-            
-            with dpg.collapsing_header(label="3D Point Cloud Settings", default_open=True):
-                dpg.add_drag_int(label="Number of Points", default_value=50000, tag="3d_points", speed=1000)
-                add_helper(dpg.last_item(), "3d_points")
-                dpg.add_drag_int(label="Cloud Depth", default_value=100, tag="3d_depth", speed=5)
-                add_helper(dpg.last_item(), "3d_depth")
-                dpg.add_drag_int(label="Z-Layers", default_value=10, tag="3d_zlayers", speed=1)
-                add_helper(dpg.last_item(), "3d_zlayers")
-                dpg.add_drag_int(label="Marker Size", default_value=5, tag="3d_markersize", min_value=1)
-                add_helper(dpg.last_item(), "3d_markersize")
-                dpg.add_drag_float(label="Marker Alpha", default_value=0.7, tag="3d_alpha", min_value=0.0, max_value=1.0, speed=0.01)
-                add_helper(dpg.last_item(), "3d_alpha")
 
             dpg.add_spacer(height=10)
             dpg.add_button(label="GENERATE", width=-1, height=40, callback=generate_final_image)
