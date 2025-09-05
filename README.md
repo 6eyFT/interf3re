@@ -1,58 +1,102 @@
-# Moiré Pattern Generator (V2)
+# Interf3re: A Moiré Pattern Generator
 
-This is a command-line interface (CLI) and graphical user interface (GUI) tool for generating 2D Moiré pattern images in Python. The architecture is based on the principles of wave interference and superlattice generation, designed for both creative and scientific applications.
+**Interf3re** is a command-line interface (CLI) and graphical user interface (GUI) tool for generating 2D Moiré pattern images in Python.  
+Its architecture is based on the principles of **wave interference** and **superlattice generation**.
 
-The tool operates on a modular, layer-based engine where fundamental 2D patterns (like lines and hexagonal lattices) are generated and then composed to create complex Moiré effects.
+The tool uses a modular, layer-based engine: fundamental 2D patterns (lines, hexagonal lattices, etc.) are generated and then composed to create complex Moiré effects.
+
+---
 
 ## Features
 
-- **Modular Architecture:** Core logic is decoupled into separate modules for pattern generation, engine orchestration, and rendering.
-- **Layer-Based Composition:** Build complex patterns by overlaying multiple simple layers.
-- **Extensible Pattern Library:** Currently supports generating line gratings and hexagonal lattices.
-- **Dual Interface:** Usable as both an interactive GUI and a scriptable command-line tool.
+- **Modular Architecture**  
+  Core logic is decoupled into separate modules for pattern generation, engine orchestration, and rendering.
+
+- **Layer-Based Composition**  
+  Build complex visuals by overlaying multiple simple layers.
+
+- **Extensible Pattern Library**  
+  Currently supports line gratings and hexagonal lattices.
+
+- **Dual Interface**  
+  Usable both as an interactive GUI and a scriptable CLI tool.
+
+---
 
 ## Installation
 
-This tool uses Python's standard virtual environment system.
+Interf3re uses Python’s standard virtual environment system.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd interf3re
-    ```
+Clone the repository:
 
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate
-    ```
+<```bash>
+git clone <your-repository-url>
+cd interf3re
+<```>
 
-3.  **Install the required dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+Create and activate a virtual environment:
 
-4.  **(Development) Install the package in editable mode:**
-    ```bash
-    pip install -e .
-    ```
+<```bash>
+python3 -m venv .venv
+source .venv/bin/activate
+<```>
+
+Install the required dependencies:
+
+<```bash>
+pip install -r requirements.txt
+<```>
+
+For development, install in editable mode (makes the `moire` package importable when running scripts):
+
+<```bash>
+pip install -e .
+<```>
+
+---
 
 ## Usage
 
 ### GUI Mode
-To run the interactive graphical interface, run the following command from the project root:
-```bash
+
+Run the interactive graphical interface:
+
+<```bash>
 python -m moire.gui
-```
+<```>
 
-## CLI Mode
-The application can also be run from the command line via `cli.py`.
+### CLI Mode
 
-**Example: Classic Rotated Line Pattern**
-```python
+Run directly from the command line as a module.
+
+**Example – Classic Rotated Line Pattern:**
+
+<```bash>
 python -m moire.cli \
---layer "type=lines;pitch=10;angle=0" \
---layer "type=lines;pitch=10;angle=3" \
---output "cli_lines.png" \
---resolution 1024
-```
+  --layer "type=lines;pitch=10;angle=0" \
+  --layer "type=lines;pitch=10;angle=3" \
+  --output "cli_lines.png" \
+  --resolution 1024
+<```>
+
+---
+
+## Roadmap
+
+1. **Extend Pattern Library**  
+   Add new base patterns beyond lines and hexagonal lattices to expand creative possibilities.
+
+2. **Hall of Fame**  
+   Showcase example Moiré images created by the author and highlight notable user submissions.
+
+3. **3D Functionality**  
+   Support generation and rendering of Moiré effects in three dimensions.
+
+4. **Animation System**  
+   Instead of saving a single image, users will be able to save *render states*.  
+   By selecting two or more states (A → B), the app will generate animations of transformations over a chosen time duration.
+
+5. **Steganography & Password Encoding**  
+   Explore embedding hidden messages or password data within Moiré images as a form of visual encryption.
+
+---
