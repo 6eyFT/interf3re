@@ -100,3 +100,8 @@ python -m moire.cli \
    Explore embedding hidden messages or password data within Moiré images as a form of visual encryption.
 
 ---
+
+## Further Reading
+Interf3re is based on original research into Moiré pattern generation.  
+For a deeper dive into the theory, see the full paper:  
+[Generating Moiré Patterns – Research Paper](https://6eyft.github.io/interf3re/)  
